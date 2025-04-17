@@ -1,36 +1,150 @@
 package com.mnhyim.myusic.ui.feature.home
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mnhyim.myusic.ui.components.MusicItem
 import com.mnhyim.myusic.ui.theme.MyusicTheme
+import com.mnhyim.myusic.util.MusicFile
+import com.mnhyim.myusic.util.MediaStorageUtilImpl
 
 @Composable
-fun Home() {
+fun Home(
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    val musicList by viewModel.musicList.collectAsStateWithLifecycle()
+
+    RequestPermissionScreen(
+        onPermissionGranted = { viewModel.fetchMusic() }
+    )
     HomeScreen(
+        musicList = musicList,
         modifier = Modifier.padding(horizontal = 16.dp)
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreen(
+    musicList: List<MusicFile>,
     modifier: Modifier = Modifier
 ) {
-    Scaffold { innerPadding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+//                        Icon(
+//                            imageVector = Icons.Outlined.MusicNote,
+//                            tint = MaterialTheme.colorScheme.primary,
+//                            contentDescription = "",
+//                            modifier = Modifier
+//                                .padding(horizontal = 8.dp)
+//                        )
+                        Text(
+                            text = "Home",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(
+                            onClick = {},
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        ) {
+                            Icon(Icons.Outlined.Search, "")
+                        }
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
         Column(
             modifier = modifier.padding(innerPadding)
         ) {
-            Text("Home Screen")
+            LazyColumn {
+                items(
+                    items = musicList,
+                    key = { it.id },
+                ) { music ->
+                    MusicItem(music)
+                }
+            }
         }
     }
 }
+
+@Composable
+fun RequestPermissionScreen(onPermissionGranted: () -> Unit) {
+    val context = LocalContext.current
+    val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        Manifest.permission.READ_MEDIA_AUDIO
+    else
+        Manifest.permission.READ_EXTERNAL_STORAGE
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            onPermissionGranted()
+        } else {
+            Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        when (ContextCompat.checkSelfPermission(context, permission)) {
+            PackageManager.PERMISSION_GRANTED -> {
+                onPermissionGranted()
+            }
+
+            else -> {
+                permissionLauncher.launch(permission)
+            }
+        }
+    }
+
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text("Requesting permission...")
+    }
+}
+
 
 @Preview(
     name = "Dark Mode",
@@ -47,6 +161,6 @@ private fun HomeScreen(
 @Composable
 private fun HomeScreenPreview() {
     MyusicTheme {
-        HomeScreen()
+        HomeScreen(emptyList())
     }
 }
