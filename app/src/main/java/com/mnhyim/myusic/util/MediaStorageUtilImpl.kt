@@ -1,10 +1,15 @@
 package com.mnhyim.myusic.util
 
+import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import androidx.core.net.toUri
+import com.mnhyim.myusic.domain.interfaces.MediaStorageUtil
+import com.mnhyim.myusic.domain.model.MusicFile
+
 
 class MediaStorageUtilImpl(
     private val context: Context
@@ -15,10 +20,12 @@ class MediaStorageUtilImpl(
     } else {
         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
     }
+
     val projection = arrayOf(
         MediaStore.Audio.Media._ID,
         MediaStore.Audio.Media.TITLE,
-        MediaStore.Audio.Media.ARTIST
+        MediaStore.Audio.Media.ARTIST,
+        MediaStore.Audio.Media.ALBUM_ID
     )
     val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
     val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
@@ -33,14 +40,28 @@ class MediaStorageUtilImpl(
                 val id = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
                 val name = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
                 val artist = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+                val albumId = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
 
                 while (cursor.moveToNext()) {
                     val id = cursor.getLong(id)
                     val name = cursor.getString(name)
                     val artist = cursor.getString(artist)
-                    Log.d("MusicUtil", "[c] $id, $name, $artist")
+                    val albumId = cursor.getLong(albumId)
+                    val contentUri = ContentUris.withAppendedId(
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        id
+                    )
+                    val albumArtUrii = "content://media/external/audio/albumart".toUri()
+                    val albumArtUri = ContentUris.withAppendedId(albumArtUrii, albumId)
+                    Log.d("MusicUtil", "[c] $id, $name, $artist, $contentUri")
 
-                    musicFileList += MusicFile(id = id, name = name, artist = artist)
+                    musicFileList += MusicFile(
+                        id = id,
+                        name = name,
+                        artist = artist,
+                        uri = contentUri.toString(),
+                        albumArtUri = albumArtUri.toString()
+                    )
                 }
 
                 Log.d("MusicUtil", "musicFileList: $musicFileList")

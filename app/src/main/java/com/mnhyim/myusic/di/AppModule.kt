@@ -1,7 +1,10 @@
 package com.mnhyim.myusic.di
 
 import android.content.Context
-import com.mnhyim.myusic.util.MediaStorageUtil
+import androidx.media3.exoplayer.ExoPlayer
+import com.mnhyim.myusic.domain.interfaces.ExoPlayerClient
+import com.mnhyim.myusic.domain.interfaces.MediaStorageUtil
+import com.mnhyim.myusic.util.ExoPlayerClientImpl
 import com.mnhyim.myusic.util.MediaStorageUtilImpl
 import dagger.Module
 import dagger.Provides
@@ -21,4 +24,21 @@ object AppModule {
     ): MediaStorageUtil {
         return MediaStorageUtilImpl(context)
     }
+
+    @Provides
+    @Singleton
+    fun provideExoPlayer(
+        @ApplicationContext context: Context
+    ): ExoPlayer {
+        return ExoPlayer.Builder(context).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideExoPlayerClient(
+        exoPlayer: ExoPlayer
+    ): ExoPlayerClient {
+        return ExoPlayerClientImpl(exoPlayer)
+    }
+
 }

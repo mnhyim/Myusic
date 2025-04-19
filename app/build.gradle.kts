@@ -77,4 +77,10 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation)
     ksp(libs.hilt.compiler)
+
+    implementation("androidx.media3:media3-exoplayer:1.6.1")
+    implementation("androidx.media3:media3-ui:1.6.1")
+    implementation("androidx.media3:media3-common:1.6.1")
+    implementation("io.coil-kt.coil3:coil-compose:3.1.0")
+
 }
