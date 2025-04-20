@@ -5,4 +5,6 @@ sealed class MusicControlAction {
     data object ResumeAction : MusicControlAction()
     data object ForwardAction : MusicControlAction()
     data object BackwardAction : MusicControlAction()
+    data object NextSongAction : MusicControlAction()
+    data object PreviousSongAction : MusicControlAction()
 }

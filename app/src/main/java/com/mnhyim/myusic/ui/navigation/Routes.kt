@@ -6,4 +6,7 @@ sealed class Routes {
 
     @Serializable
     data object Home : Routes()
+
+    @Serializable
+    data object Player : Routes()
 }

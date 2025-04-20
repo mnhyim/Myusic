@@ -7,6 +7,7 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.mnhyim.myusic.domain.interfaces.ExoPlayerClient
+import com.mnhyim.myusic.domain.model.MusicFile
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
@@ -14,6 +15,9 @@ import javax.inject.Inject
 class ExoPlayerClientImpl @Inject constructor(
     private val exoPlayer: ExoPlayer,
 ) : ExoPlayerClient {
+
+    private val _currentSong: MutableStateFlow<MusicFile?> = MutableStateFlow(null)
+    override val currentSongFlow = _currentSong.asStateFlow()
 
     private val _isPlayingFlow = MutableStateFlow(false)
     override val isPlayingFlow = _isPlayingFlow.asStateFlow()
@@ -27,22 +31,37 @@ class ExoPlayerClientImpl @Inject constructor(
             super.onIsPlayingChanged(isPlaying)
             _isPlayingFlow.value = isPlaying
         }
+
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            super.onMediaItemTransition(mediaItem, reason)
+
+            val musicFile = mediaItem?.localConfiguration?.tag as? MusicFile
+            _currentSong.value = musicFile
+        }
     }
 
     init {
         exoPlayer.addListener(playerListener)
     }
 
-    override fun play(uri: Uri) {
-        val mediaItem = MediaItem.fromUri(uri)
+    override fun play(uri: Uri, musicFile: MusicFile) {
+        val mediaItem = MediaItem.Builder()
+            .setUri(uri)
+            .setTag(musicFile)
+            .build()
         exoPlayer.setMediaItem(mediaItem)
         exoPlayer.prepare()
         exoPlayer.play()
+        _currentSong.value = musicFile
     }
 
-    override fun addToQueue(uri: Uri) {
-        val mediaItem = MediaItem.fromUri(uri)
+    override fun addToQueue(uri: Uri, musicFile: MusicFile) {
+        val mediaItem = MediaItem.Builder()
+            .setUri(uri)
+            .setTag(musicFile)
+            .build()
         exoPlayer.addMediaItem(mediaItem)
+        exoPlayer.prepare()
     }
 
     override fun pause() = exoPlayer.pause()
@@ -50,6 +69,14 @@ class ExoPlayerClientImpl @Inject constructor(
     override fun resume() = exoPlayer.play()
 
     override fun stop() = exoPlayer.stop()
+
+    override fun forward() = exoPlayer.seekForward()
+
+    override fun backward() = exoPlayer.seekBack()
+
+    override fun nextSong() = exoPlayer.seekToNext()
+
+    override fun prevSong() = exoPlayer.seekToPrevious()
 
     override fun release() = exoPlayer.release()
 

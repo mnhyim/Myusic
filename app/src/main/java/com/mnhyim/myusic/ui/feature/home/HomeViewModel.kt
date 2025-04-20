@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.mnhyim.myusic.domain.interfaces.ExoPlayerClient
 import com.mnhyim.myusic.domain.interfaces.MediaStorageUtil
 import com.mnhyim.myusic.domain.model.MusicFile
-import com.mnhyim.myusic.util.MusicControlAction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,8 +21,6 @@ class HomeViewModel @Inject constructor(
 
     private var _musicList = MutableStateFlow(emptyList<MusicFile>())
     val musicList = _musicList.asStateFlow()
-
-    val isPlaying = exoPlayerClient.isPlayingFlow
 
     init {
         Log.d("HomeViewModel", "ViewModel Initialized")
@@ -40,16 +37,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun playTrack(uri: Uri) {
-        exoPlayerClient.play(uri)
+    fun playTrack(uri: Uri, musicFile: MusicFile) {
+        exoPlayerClient.play(uri, musicFile)
     }
 
-    fun onAction(action: MusicControlAction) {
-        when (action) {
-            MusicControlAction.PauseAction -> exoPlayerClient.pause()
-            MusicControlAction.ForwardAction -> {}
-            MusicControlAction.BackwardAction -> {}
-            MusicControlAction.ResumeAction -> exoPlayerClient.resume()
-        }
+    fun addToQueue(uri: Uri, musicFile: MusicFile) {
+        exoPlayerClient.addToQueue(uri, musicFile)
     }
 }

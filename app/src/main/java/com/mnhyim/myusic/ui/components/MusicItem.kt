@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MusicNote
+import androidx.compose.material.icons.outlined.QueuePlayNext
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +29,7 @@ import com.mnhyim.myusic.domain.model.MusicFile
 fun MusicItem(
     item: MusicFile,
     onClick: () -> Unit,
+    onAddToQueue: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -73,6 +76,11 @@ fun MusicItem(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
             )
+        }
+        IconButton(
+            onClick = onAddToQueue
+        ) {
+            Icon(Icons.Outlined.QueuePlayNext, "")
         }
     }
 }
