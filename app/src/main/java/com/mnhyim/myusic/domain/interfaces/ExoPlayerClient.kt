@@ -6,8 +6,9 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface ExoPlayerClient {
 
-    val currentSongFlow: StateFlow<MusicFile?>
     val isPlayingFlow: StateFlow<Boolean>
+    val currentSongFlow: StateFlow<MusicFile?>
+    val currentPosition: StateFlow<Long>
 
     fun play(uri: Uri, musicFile: MusicFile)
     fun addToQueue(uri: Uri, musicFile: MusicFile)
@@ -19,5 +20,4 @@ interface ExoPlayerClient {
     fun nextSong()
     fun prevSong()
     fun release()
-    fun isPlaying(): Boolean
 }

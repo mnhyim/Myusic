@@ -8,19 +8,30 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.mnhyim.myusic.domain.interfaces.ExoPlayerClient
 import com.mnhyim.myusic.domain.model.MusicFile
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ExoPlayerClientImpl @Inject constructor(
     private val exoPlayer: ExoPlayer,
 ) : ExoPlayerClient {
 
+    private val _isPlayingFlow = MutableStateFlow(false)
+    override val isPlayingFlow = _isPlayingFlow.asStateFlow()
+
     private val _currentSong: MutableStateFlow<MusicFile?> = MutableStateFlow(null)
     override val currentSongFlow = _currentSong.asStateFlow()
 
-    private val _isPlayingFlow = MutableStateFlow(false)
-    override val isPlayingFlow = _isPlayingFlow.asStateFlow()
+    private val _currentPosition = MutableStateFlow(0L)
+    override val currentPosition: StateFlow<Long> get() = _currentPosition
+
+    private var positionJob: Job? = null
 
     private val playerListener = object : Player.Listener {
         override fun onPlayerError(error: PlaybackException) {
@@ -29,6 +40,11 @@ class ExoPlayerClientImpl @Inject constructor(
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             super.onIsPlayingChanged(isPlaying)
+            if (isPlaying) {
+                startTracking()
+            } else {
+                stopTracking()
+            }
             _isPlayingFlow.value = isPlaying
         }
 
@@ -53,6 +69,7 @@ class ExoPlayerClientImpl @Inject constructor(
         exoPlayer.prepare()
         exoPlayer.play()
         _currentSong.value = musicFile
+        startTracking()
     }
 
     override fun addToQueue(uri: Uri, musicFile: MusicFile) {
@@ -80,5 +97,19 @@ class ExoPlayerClientImpl @Inject constructor(
 
     override fun release() = exoPlayer.release()
 
-    override fun isPlaying(): Boolean = exoPlayer.isPlaying
+    private fun startTracking() {
+        positionJob?.cancel()
+        positionJob = CoroutineScope(Dispatchers.Main).launch {
+            while (exoPlayer.isPlaying) {
+                Log.d("ExoPlayerClientImpl", "cp: ${exoPlayer.currentPosition}")
+                _currentPosition.value = exoPlayer.currentPosition
+                delay(1000L)
+            }
+        }
+    }
+
+    private fun stopTracking() {
+        positionJob?.cancel()
+        positionJob = null
+    }
 }

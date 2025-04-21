@@ -82,5 +82,6 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.6.1")
     implementation("androidx.media3:media3-common:1.6.1")
     implementation("io.coil-kt.coil3:coil-compose:3.1.0")
+    implementation("io.github.2307vivek:seeker:1.2.2")
 
 }

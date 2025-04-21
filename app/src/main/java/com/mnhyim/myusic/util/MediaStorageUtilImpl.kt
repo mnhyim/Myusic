@@ -10,7 +10,6 @@ import androidx.core.net.toUri
 import com.mnhyim.myusic.domain.interfaces.MediaStorageUtil
 import com.mnhyim.myusic.domain.model.MusicFile
 
-
 class MediaStorageUtilImpl(
     private val context: Context
 ) : MediaStorageUtil {
@@ -25,7 +24,8 @@ class MediaStorageUtilImpl(
         MediaStore.Audio.Media._ID,
         MediaStore.Audio.Media.TITLE,
         MediaStore.Audio.Media.ARTIST,
-        MediaStore.Audio.Media.ALBUM_ID
+        MediaStore.Audio.Media.DURATION,
+        MediaStore.Audio.Media.ALBUM_ID,
     )
     val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
     val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
@@ -40,27 +40,39 @@ class MediaStorageUtilImpl(
                 val id = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
                 val name = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
                 val artist = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+                val duration = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
                 val albumId = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
 
                 while (cursor.moveToNext()) {
                     val id = cursor.getLong(id)
                     val name = cursor.getString(name)
                     val artist = cursor.getString(artist)
+                    val duration = cursor.getInt(duration)
                     val albumId = cursor.getLong(albumId)
                     val contentUri = ContentUris.withAppendedId(
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         id
                     )
-                    val albumArtUrii = "content://media/external/audio/albumart".toUri()
-                    val albumArtUri = ContentUris.withAppendedId(albumArtUrii, albumId)
+                    val albumArtUri = ContentUris.withAppendedId(
+                        "content://media/external/audio/albumart".toUri(),
+                        albumId
+                    )
                     Log.d("MusicUtil", "[c] $id, $name, $artist, $contentUri")
+
+                    val hasAlbumArt = try {
+                        val fd = context.contentResolver.openFileDescriptor(albumArtUri, "r")
+                        fd?.use { true } == true
+                    } catch (e: Exception) {
+                        false
+                    }
 
                     musicFileList += MusicFile(
                         id = id,
                         name = name,
                         artist = artist,
+                        duration = duration.toLong(),
                         uri = contentUri.toString(),
-                        albumArtUri = albumArtUri.toString()
+                        albumArtUri = if (hasAlbumArt) albumArtUri.toString() else null
                     )
                 }
 
@@ -69,4 +81,12 @@ class MediaStorageUtilImpl(
 
         return musicFileList
     }
+}
+
+fun formatMilliToMinutes(milli: Long): String {
+    val totalSeconds = milli / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    Log.d("formatMilliToMinutes", "$minutes:$seconds")
+    return String.format("%d:%02d", minutes, seconds)
 }

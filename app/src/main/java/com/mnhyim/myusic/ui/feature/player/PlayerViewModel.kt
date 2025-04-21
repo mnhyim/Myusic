@@ -15,6 +15,7 @@ class PlayerViewModel @Inject constructor(
 
     val currentSong = exoPlayerClient.currentSongFlow
     val isPlaying = exoPlayerClient.isPlayingFlow
+    val currentPosition = exoPlayerClient.currentPosition
 
     fun onAction(action: MusicControlAction) {
         when (action) {
