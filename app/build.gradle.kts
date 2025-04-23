@@ -79,10 +79,10 @@ dependencies {
     implementation(libs.hilt.navigation)
     ksp(libs.hilt.compiler)
 
-    implementation("androidx.media3:media3-exoplayer:1.6.1")
-    implementation("androidx.media3:media3-ui:1.6.1")
-    implementation("androidx.media3:media3-common:1.6.1")
-    implementation("io.coil-kt.coil3:coil-compose:3.1.0")
-    implementation("io.github.2307vivek:seeker:1.2.2")
-    implementation("com.jakewharton.timber:timber:5.0.1")
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.common)
+    implementation(libs.coil3.coil.compose)
+    implementation(libs.seeker)
+    implementation(libs.timber)
 }

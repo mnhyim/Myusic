@@ -1,6 +1,8 @@
 package com.mnhyim.myusic.util
 
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
@@ -41,9 +43,18 @@ class ExoPlayerClientImpl @Inject constructor(
     private var songPosition: Job? = trackingScope.launch {
         while (exoPlayer.isPlaying) {
             _currentPosition.value = exoPlayer.currentPosition
-            delay(1000L)
+            delay(500L)
         }
     }
+//    val handler = Handler(Looper.getMainLooper())
+//    fun checkPlaybackPosition(delayMs: Long): Boolean =
+//        handler.postDelayed(
+//            {
+//                _currentPosition.value = exoPlayer.currentPosition
+//                checkPlaybackPosition(delayMs)
+//            },
+//            delayMs
+//        )
 
     private val playerListener: Player.Listener = object : Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -72,7 +83,7 @@ class ExoPlayerClientImpl @Inject constructor(
                     while (exoPlayer.isPlaying) {
                         Timber.d("Current Position: ${exoPlayer.currentPosition}")
                         _currentPosition.value = exoPlayer.currentPosition
-                        delay(1000L)
+                        delay(250L)
                     }
                 }
             }

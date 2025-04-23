@@ -154,7 +154,6 @@ private fun PlayerScreen(
             }
 
             Box {
-                Text("$seekerValue")
                 Seeker(
                     value = seekerValue,
                     onValueChange = { },
@@ -169,11 +168,11 @@ private fun PlayerScreen(
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = formatMilliToMinutes(currentPosition),
+                        text = "${formatMilliToMinutes(currentPosition)} - $currentPosition",
                         style = MaterialTheme.typography.labelSmall,
                     )
                     Text(
-                        text = formatMilliToMinutes(duration),
+                        text = "${formatMilliToMinutes(duration)} - $duration",
                         style = MaterialTheme.typography.labelSmall,
                     )
                 }
