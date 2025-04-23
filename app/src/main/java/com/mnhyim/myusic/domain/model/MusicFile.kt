@@ -1,5 +1,8 @@
 package com.mnhyim.myusic.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class MusicFile(
     val id: Long,
     val name: String,

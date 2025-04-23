@@ -19,12 +19,12 @@ class PlayerViewModel @Inject constructor(
 
     fun onAction(action: MusicControlAction) {
         when (action) {
-            MusicControlAction.PauseAction -> exoPlayerClient.pause()
-            MusicControlAction.ResumeAction -> exoPlayerClient.resume()
-            MusicControlAction.ForwardAction -> exoPlayerClient.forward()
-            MusicControlAction.BackwardAction -> exoPlayerClient.backward()
-            MusicControlAction.NextSongAction -> exoPlayerClient.nextSong()
-            MusicControlAction.PreviousSongAction -> exoPlayerClient.prevSong()
+            MusicControlAction.PauseAction -> exoPlayerClient.pauseSong()
+            MusicControlAction.ResumeAction -> exoPlayerClient.resumeSong()
+            MusicControlAction.ForwardAction -> exoPlayerClient.seekForward()
+            MusicControlAction.BackwardAction -> exoPlayerClient.seekBackward()
+            MusicControlAction.NextSongAction -> exoPlayerClient.playNextSong()
+            MusicControlAction.PreviousSongAction -> exoPlayerClient.playPrevSong()
         }
     }
 }

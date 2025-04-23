@@ -36,17 +36,17 @@ fun Home(
     onNavigate: (Routes) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val musicList by viewModel.musicList.collectAsStateWithLifecycle()
-
     RequestPermissionScreen(
-        onPermissionGranted = { viewModel.fetchMusic() }
-    )
-    HomeScreen(
-        musicList = musicList,
-        onPlay = { uri, musicFile -> viewModel.playTrack(uri, musicFile) },
-        onAddToQueue = { uri, musicFile -> viewModel.addToQueue(uri, musicFile) },
-        onNavigate = onNavigate,
-        modifier = Modifier
+        content = {
+            val musicList by viewModel.musicList.collectAsStateWithLifecycle()
+            HomeScreen(
+                musicList = musicList,
+                onPlay = { uri, musicFile -> viewModel.playTrack(uri, musicFile) },
+                onAddToQueue = { uri, musicFile -> viewModel.addToQueue(uri, musicFile) },
+                onNavigate = onNavigate,
+                modifier = Modifier
+            )
+        }
     )
 }
 
