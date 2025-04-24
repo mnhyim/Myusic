@@ -24,7 +24,9 @@ fun MainNavHost(
             )
         }
         composable<Routes.Player> {
-            Player()
+            Player(
+                onBackNavigate = { navController.popBackStack() }
+            )
         }
     }
 }
